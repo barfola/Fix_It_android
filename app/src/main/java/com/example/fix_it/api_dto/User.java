@@ -1,15 +1,34 @@
 package com.example.fix_it.api_dto;
 import com.example.fix_it.helper.HashUtil;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.UUID;
 
 public class User extends ApiDtoBase{
+
+    private enum Fields{
+        sessionId,
+        userName,
+        uuid,
+        password,
+        hashPassword,
+        adminLevel,
+        error,
+        message
+    }
 
     private String userName;
     private String password;
     private int adminLevel;
     private String sessionID;
     private String hashPassword;
+    private String message;
+    private String error;
+
+
+    public User()   {  }
 
     public User(String userName, String password, int adminLevel, String sessionID) {
         super();
@@ -18,6 +37,9 @@ public class User extends ApiDtoBase{
         this.adminLevel = adminLevel;
         this.sessionID = sessionID;
         this.hashPassword = HashUtil.hashString(password);
+        this.message = null;
+        this.error = null;
+
     }
 
     public User(String userName, String password) {
@@ -27,17 +49,10 @@ public class User extends ApiDtoBase{
         this.adminLevel = 0;
         this.sessionID = null;
         this.hashPassword = HashUtil.hashString(password);
+        this.message = null;
+        this.error = null;
 
     }
-
-
-//    public User() {
-//        super();
-//        this.userName = null;
-//        this.password = null;
-//        this.adminLevel = Integer.parseInt(null);
-//        this.sessionID = null;
-//    }
 
     //getters
     public String getUserName(){
@@ -58,6 +73,10 @@ public class User extends ApiDtoBase{
         return this.hashPassword;
     }
 
+    public String getMessage() {return this.message;}
+    public String getError() {return this.error;}
+
+
     //setters
     public void setUserName(String userName){
         this.userName = userName;
@@ -77,6 +96,25 @@ public class User extends ApiDtoBase{
         this.hashPassword = hashPassword;
     }
 
+    public void setMessage(String message) {this.message = message;}
+
+    public void setError(String error) {this.error = error;}
+
+
+    public void mapJson(String json) throws JSONException {
+        JSONObject jsonObj = new JSONObject(json);
+
+        this.sessionID=jsonObj.isNull(Fields.sessionId.toString()) ? "" : jsonObj.getString(Fields.sessionId.toString());
+        this.userName=jsonObj.isNull(Fields.userName.toString()) ? "" : jsonObj.getString(Fields.userName.toString());
+        this.password=jsonObj.isNull(Fields.password.toString()) ? "" : jsonObj.getString(Fields.password.toString());
+        this.hashPassword=jsonObj.isNull(Fields.hashPassword.toString()) ? "" : jsonObj.getString(Fields.hashPassword.toString());
+        this.uuid=jsonObj.isNull(Fields.uuid.toString()) ? "" : jsonObj.getString(Fields.uuid.toString());
+        this.adminLevel=jsonObj.isNull(Fields.adminLevel.toString()) ? 0 : jsonObj.getInt(Fields.adminLevel.toString());
+        this.message=jsonObj.isNull(Fields.message.toString()) ? "" : jsonObj.getString(Fields.message.toString());
+        this.error=jsonObj.isNull(Fields.error.toString()) ? "" : jsonObj.getString(Fields.error.toString());
+
+
+    }
 
 
 

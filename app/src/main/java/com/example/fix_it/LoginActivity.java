@@ -83,39 +83,22 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
-                    JSONObject json = null;
-                    String message = null;
-                    String uuid = null;
-                    String sessionId = null;
-                    String userName = null;
-                    int adminLevel = 0;
-                    String password = null;
-                    String hashPassword = null;
+                    User user = new User();
                     try {
-                        json = new JSONObject(responseBody);
-                        message = json.getString("message");
-                        uuid = json.getString("uuid");
-                        sessionId = json.getString("sessionId");
-                        userName = json.getString("userName");
-                        adminLevel = json.getInt("adminLevel");
-                        password = json.getString("password");
-                        hashPassword = json.getString("hashPassword");
-
+                        user.mapJson(responseBody);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    Log.i("session", sessionId);
-                    Log.i("uuid", uuid);
-                    Log.i("password", password);
-                    Log.i("hashPassword", hashPassword);
-                    Log.i("adminLevel", ""+adminLevel);
-                    Log.i("username", userName);
-                    Log.i("message", message);
-                    User user = new User(userName, password, adminLevel, sessionId);
-                    user.setUuid(uuid);
-                    db_utils.saveDataToFile(LoginActivity.this, "user.data", user.getUuid());
+                    Log.i("session", user.getSessionID());
+                    Log.i("uuid", user.getUuid());
+                    Log.i("password", user.getPassword());
+                    Log.i("hashPassword", user.getHashPassword());
+                    Log.i("adminLevel", ""+user.getAdminLevel());
+                    Log.i("username", user.getUserName());
+                    Log.i("message", user.getMessage());
+                    db_utils.saveDataToFile(LoginActivity.this, "user.uuid", user.getUuid());
                     db_utils.saveDataToFile(LoginActivity.this, "user.sessionId", user.getSessionID());
-                    String fileData = db_utils.readDataFromFile(LoginActivity.this, "user.data");
+                    String fileData = db_utils.readDataFromFile(LoginActivity.this, "user.uuid");
                     File file = new File(getFilesDir(), "user.data");
 
 

@@ -80,31 +80,21 @@ public class signInActivity extends AppCompatActivity {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
-                    JSONObject json = null;
-                    try {
-                        json = new JSONObject(responseBody);
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                    String message = null;
-                    try {
-                        message = json.getString("message");
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                    String sessionId = null;
-                    try {
-                        sessionId = json.getString("sessionId");
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
 
-                    Log.i("Server", "Message: " + message);
-                    Log.i("Server", "Session ID: " + sessionId);
-                    user.setSessionID(sessionId);
-                    db_utils.saveDataToFile(signInActivity.this, "user.data", user.getUuid());
+                    try {
+                        user.mapJson(responseBody);
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                    Log.i("session", user.getSessionID());
+                    Log.i("uuid", user.getUuid());
+                    Log.i("password", user.getPassword());
+                    Log.i("hashPassword", user.getHashPassword());
+                    Log.i("adminLevel", ""+user.getAdminLevel());
+                    Log.i("username", user.getUserName());
+                    db_utils.saveDataToFile(signInActivity.this, "user.uuid", user.getUuid());
                     db_utils.saveDataToFile(signInActivity.this, "user.sessionId", user.getSessionID());
-                    String fileData = db_utils.readDataFromFile(signInActivity.this, "user.data");
+                    String fileData = db_utils.readDataFromFile(signInActivity.this, "user.uuid");
                     assert fileData != null;
                     Log.i("file data", fileData);
                 }

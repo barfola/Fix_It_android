@@ -171,5 +171,41 @@ public class usersApi {
             }
         }).start();
     }
+    public static void sendSessionIdAndUuidToServer(String serverUrl, String uuid, String sessionId, ServerResponseCallback callback) {
+        OkHttpClient client = new OkHttpClient();
+        Gson gson = new Gson();
+
+        MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+        // Manually create a JSON string or use a map
+        Map<String, String> credentialsData = new HashMap<>();
+        credentialsData.put("uuid", uuid);
+        credentialsData.put("sessionId", sessionId);
+
+        String jsonBody = gson.toJson(credentialsData);
+
+        RequestBody body = RequestBody.create(jsonBody, JSON);
+        Request request = new Request.Builder()
+                .url(serverUrl)
+                .post(body)
+                .build();
+
+        new Thread(() -> {
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    int statusCode = response.code();
+                    Log.i("userApi", "Credentials data sent successfully: " + statusCode);
+                    callback.onSuccess(response.body().string());
+                } else {
+                    int statusCode = response.code();
+                    Log.e("userApi", "Sending credentials failed: " + statusCode);
+                    callback.onFailure(statusCode, "Server responded with code: " + statusCode);
+                }
+            } catch (IOException e) {
+                Log.e("userApi", "Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+    }
 
 }

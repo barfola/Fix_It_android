@@ -1,7 +1,11 @@
 package com.example.fix_it;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
+import android.os.Looper;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,8 +14,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.fix_it.api.ReportApi;
-import com.example.fix_it.api_dto.ProblemReport;
+import com.example.fix_it.api.ServerResponseCallback;
+import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
+import com.example.fix_it.db.db_utils;
+import com.example.fix_it.helper.AndroidUtils;
+import com.example.fix_it.helper.AndroidUtils;
+
+import org.json.JSONException;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -27,25 +37,52 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        //db_utils db = db_utils.getInstance();
-        //usersApi api=new usersApi();
-        //Users users=api.getUser("asdad");
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Log.d("Handler", "This runs after a 3-second delay");
+            String uuid = db_utils.readDataFromFile(MainActivity.this, "user.uuid");
+            String sessionId = db_utils.readDataFromFile(MainActivity.this, "user.sessionId");
+            Log.i("uuid", uuid);
+            Log.i("sessionId", sessionId);
 
-//        Users users=new Users();
-        //User user = new User("yoni", "1213", 1, "1");
-//        String Userid = user.getUuid();
-//        String sessionID = user.getSessionID();
-        //ProblemReport report = new ProblemReport("takala bath", ProblemReport.Role.STUDENT, ProblemReport.Location.BATHROOM, ProblemReport.ReportType.BROKEN_OBJECT, user);
-        //db.saveDataToFile(this,"user.data",users.getUserId());
-        //String userId= db.readDataFromFile(this,"user.data");
-        //Log.i("userData",userId);
-        //usersApi userapi = new usersApi();
-        //userapi.sendUserToServer("http://10.100.102.7:5000", users);
-        //ReportApi reportApi = new ReportApi();
-        //reportApi.sendReportToServer("http://10.100.102.8:5000", report);
-        //Log.i("yehonatan bar", "print");
-        //userapi.sendUserToServer("http://10.100.102.4:5000", user);
-        //reportApi.getReportFromServer("http://10.100.102.4:5000");
+            if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(sessionId)) {
+                navigateTo(signInActivity.class);
+            } else {
+                usersApi.sendSessionIdAndUuidToServer("http://10.100.102.8:5000/initialCredentials", uuid, sessionId, new ServerResponseCallback() {
+                    @Override
+                    public void onSuccess(String responseBody) {
+                        Log.i("response body", responseBody);
+                        User user = new User();
+                        try {
+                            user.mapJson(responseBody);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        AndroidUtils.logUserDetails(user);
 
+                        navigateTo(HomePage.class);
+
+                    }
+
+                    @Override
+                    public void onFailure(int statusCode, String errorMessage) {
+                        Log.i("in else on failure","failure");
+
+                        if(statusCode == 401){
+                            navigateTo(ProblemReport.class);
+                        }
+                    }
+                });
+
+            }
+
+
+        }, 3000);
+
+    }
+
+    private void navigateTo(Class<?> targetActivity) {
+        Intent intent = new Intent(MainActivity.this, targetActivity);
+        startActivity(intent);
+        finish();
     }
 }
