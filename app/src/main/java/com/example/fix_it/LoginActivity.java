@@ -18,12 +18,12 @@ import androidx.core.view.WindowInsetsCompat;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
+import com.example.fix_it.api_dto.UserManager;
 import com.example.fix_it.db.db_utils;
+import com.example.fix_it.helper.AndroidUtils;
+import com.example.fix_it.helper.BaseActivity;
 
 import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -84,26 +84,26 @@ public class LoginActivity extends AppCompatActivity {
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
                     User user = new User();
+
                     try {
                         user.mapJson(responseBody);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    Log.i("session", user.getSessionID());
-                    Log.i("uuid", user.getUuid());
-                    Log.i("password", user.getPassword());
-                    Log.i("hashPassword", user.getHashPassword());
-                    Log.i("adminLevel", ""+user.getAdminLevel());
-                    Log.i("username", user.getUserName());
-                    Log.i("message", user.getMessage());
+
+                    AndroidUtils.logUserDetails(user);
+
                     db_utils.saveDataToFile(LoginActivity.this, "user.uuid", user.getUuid());
                     db_utils.saveDataToFile(LoginActivity.this, "user.sessionId", user.getSessionID());
+
                     String fileData = db_utils.readDataFromFile(LoginActivity.this, "user.uuid");
-                    File file = new File(getFilesDir(), "user.data");
-
-
                     assert fileData != null;
+
                     Log.i("file data", fileData);
+
+                    UserManager.getInstance().setUser(user); // Save the user globally
+                    Intent intent = new Intent(LoginActivity.this, ProblemReportActivity.class);
+                    startActivity(intent);
 
                 }
 
@@ -120,7 +120,6 @@ public class LoginActivity extends AppCompatActivity {
 
                 }
             });
-            //Toast.makeText(this, "Call registration method", Toast.LENGTH_SHORT).show();
         }
 
     }

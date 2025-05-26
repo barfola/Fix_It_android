@@ -16,7 +16,10 @@
         android:theme="@style/Theme.Fix_it"
         tools:targetApi="31">
         <activity
-            android:name=".ProblemReport"
+            android:name=".MyReportsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProblemReportActivity"
             android:exported="false" />
         <activity
             android:name=".HomePage"

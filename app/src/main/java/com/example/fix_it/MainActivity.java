@@ -13,12 +13,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.fix_it.api.ReportApi;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
+import com.example.fix_it.api_dto.UserManager;
 import com.example.fix_it.db.db_utils;
-import com.example.fix_it.helper.AndroidUtils;
 import com.example.fix_it.helper.AndroidUtils;
 
 import org.json.JSONException;
@@ -41,10 +40,9 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Handler", "This runs after a 3-second delay");
             String uuid = db_utils.readDataFromFile(MainActivity.this, "user.uuid");
             String sessionId = db_utils.readDataFromFile(MainActivity.this, "user.sessionId");
-            Log.i("uuid", uuid);
-            Log.i("sessionId", sessionId);
 
             if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(sessionId)) {
+                Log.i("first if", "first if");
                 navigateTo(signInActivity.class);
             } else {
                 usersApi.sendSessionIdAndUuidToServer("http://10.100.102.8:5000/initialCredentials", uuid, sessionId, new ServerResponseCallback() {
@@ -59,7 +57,9 @@ public class MainActivity extends AppCompatActivity {
                         }
                         AndroidUtils.logUserDetails(user);
 
-                        navigateTo(HomePage.class);
+                        UserManager.getInstance().setUser(user);
+                        Intent intent = new Intent(MainActivity.this, ProblemReportActivity.class);
+                        startActivity(intent);
 
                     }
 
@@ -68,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.i("in else on failure","failure");
 
                         if(statusCode == 401){
-                            navigateTo(ProblemReport.class);
+                            navigateTo(LoginActivity.class);
                         }
                     }
                 });

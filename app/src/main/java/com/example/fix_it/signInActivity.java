@@ -16,10 +16,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.fix_it.api.ServerResponseCallback;
-import com.example.fix_it.api.SessionCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
 import com.example.fix_it.db.db_utils;
+import com.example.fix_it.helper.AndroidUtils;
+import com.example.fix_it.helper.BaseActivity;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,28 +76,29 @@ public class signInActivity extends AppCompatActivity {
             String inputUserNameStr = inputUserName.getText().toString();
             String inputPasswordStr = inputPassword.getText().toString();
             User user = new User(inputUserNameStr, inputPasswordStr);
-
+            AndroidUtils.logUserDetails(user);
             usersApi.sendUserToServer("http://10.100.102.8:5000/signin", user, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
-
+                    String sessionId = "";
                     try {
-                        user.mapJson(responseBody);
+                        JSONObject json = new JSONObject(responseBody);
+                         sessionId = json.getString("sessionId");
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
-                    Log.i("session", user.getSessionID());
-                    Log.i("uuid", user.getUuid());
-                    Log.i("password", user.getPassword());
-                    Log.i("hashPassword", user.getHashPassword());
-                    Log.i("adminLevel", ""+user.getAdminLevel());
-                    Log.i("username", user.getUserName());
+
+                    user.setSessionID(sessionId);
+                    AndroidUtils.logUserDetails(user);
                     db_utils.saveDataToFile(signInActivity.this, "user.uuid", user.getUuid());
                     db_utils.saveDataToFile(signInActivity.this, "user.sessionId", user.getSessionID());
                     String fileData = db_utils.readDataFromFile(signInActivity.this, "user.uuid");
                     assert fileData != null;
                     Log.i("file data", fileData);
+                    Intent intent = new Intent(signInActivity.this, ProblemReportActivity.class);
+                    intent.putExtra("user", user);
+                    startActivity(intent);
                 }
 
                 @Override

@@ -1,4 +1,9 @@
 package com.example.fix_it.api_dto;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import com.example.fix_it.helper.HashUtil;
 
 import org.json.JSONException;
@@ -6,7 +11,49 @@ import org.json.JSONObject;
 
 import java.util.UUID;
 
-public class User extends ApiDtoBase{
+public class User extends ApiDtoBase implements Parcelable {
+
+    protected User(Parcel in) {
+        userName = in.readString();
+        password = in.readString();
+        adminLevel = in.readInt();
+        sessionID = in.readString();
+        hashPassword = in.readString();
+        message = in.readString();
+        error = in.readString();
+        uuid = in.readString();
+
+    }
+
+    public static final Creator<User> CREATOR = new Creator<User>() {
+        @Override
+        public User createFromParcel(Parcel in) {
+            return new User(in);
+        }
+
+        @Override
+        public User[] newArray(int size) {
+            return new User[size];
+        }
+    };
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        dest.writeString(userName);
+        dest.writeString(password);
+        dest.writeInt(adminLevel);
+        dest.writeString(sessionID);
+        dest.writeString(hashPassword);
+        dest.writeString(message);
+        dest.writeString(error);
+        dest.writeString(uuid);
+
+    }
 
     private enum Fields{
         sessionId,
@@ -104,14 +151,14 @@ public class User extends ApiDtoBase{
     public void mapJson(String json) throws JSONException {
         JSONObject jsonObj = new JSONObject(json);
 
-        this.sessionID=jsonObj.isNull(Fields.sessionId.toString()) ? "" : jsonObj.getString(Fields.sessionId.toString());
-        this.userName=jsonObj.isNull(Fields.userName.toString()) ? "" : jsonObj.getString(Fields.userName.toString());
-        this.password=jsonObj.isNull(Fields.password.toString()) ? "" : jsonObj.getString(Fields.password.toString());
-        this.hashPassword=jsonObj.isNull(Fields.hashPassword.toString()) ? "" : jsonObj.getString(Fields.hashPassword.toString());
-        this.uuid=jsonObj.isNull(Fields.uuid.toString()) ? "" : jsonObj.getString(Fields.uuid.toString());
-        this.adminLevel=jsonObj.isNull(Fields.adminLevel.toString()) ? 0 : jsonObj.getInt(Fields.adminLevel.toString());
-        this.message=jsonObj.isNull(Fields.message.toString()) ? "" : jsonObj.getString(Fields.message.toString());
-        this.error=jsonObj.isNull(Fields.error.toString()) ? "" : jsonObj.getString(Fields.error.toString());
+        this.setSessionID(jsonObj.isNull(Fields.sessionId.toString()) ? "" : jsonObj.getString(Fields.sessionId.toString()));
+        this.setUserName(jsonObj.isNull(Fields.userName.toString()) ? "" : jsonObj.getString(Fields.userName.toString()));
+        this.setPassword(jsonObj.isNull(Fields.password.toString()) ? "" : jsonObj.getString(Fields.password.toString()));
+        this.setHashPassword(jsonObj.isNull(Fields.hashPassword.toString()) ? "" : jsonObj.getString(Fields.hashPassword.toString()));
+        this.setUuid(jsonObj.isNull(Fields.uuid.toString()) ? "" : jsonObj.getString(Fields.uuid.toString()));
+        this.setAdminLevel(jsonObj.isNull(Fields.adminLevel.toString()) ? 0 : jsonObj.getInt(Fields.adminLevel.toString()));
+        this.setMessage(jsonObj.isNull(Fields.message.toString()) ? "" : jsonObj.getString(Fields.message.toString()));
+        this.setError(jsonObj.isNull(Fields.error.toString()) ? "" : jsonObj.getString(Fields.error.toString()));
 
 
     }

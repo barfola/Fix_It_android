@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Authentication">
+
+        <menu>
+
+            <item
+                android:id="@+id/nav_login"
+                android:title="Login"
+                android:icon="@drawable/ic_launcher_login"
+            />
+            <item
+                android:id="@+id/nav_signin"
+                android:title="Sign in"
+                android:icon="@drawable/ic_launcher_register"
+                />
+
+        </menu>
+
+    </item>
+
+    <item android:title="Reports">
+
+        <menu>
+
+            <item
+                android:id="@+id/nav_problem_report"
+                android:title="Report"
+                android:icon="@drawable/ic_launcher_report"
+                />
+            <item
+                android:id="@+id/nav_my_reports"
+                android:title="My reports"
+                android:icon="@drawable/ic_launcher_report_list"
+                />
+
+        </menu>
+
+    </item>
+
+
+</menu>
