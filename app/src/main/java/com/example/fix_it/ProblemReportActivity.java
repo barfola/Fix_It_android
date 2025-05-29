@@ -178,7 +178,7 @@ public class ProblemReportActivity extends BaseActivity {
 
         }
 
-        ReportApi.sendReportToServer("http://10.100.102.8:5000/problemReport", problemReport);
+        ReportApi.sendReportToServer("http://10.100.102.12:5000/problemReport", problemReport, ProblemReportActivity.this);
 
         Log.i("fill all", "you fill all the fields");
     }

@@ -1,11 +1,15 @@
 package com.example.fix_it.api;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.fix_it.LoginActivity;
 import com.example.fix_it.api_dto.ProblemReport;
 import com.example.fix_it.api_dto.User;
 import com.example.fix_it.api_dto.UserManager;
+import com.example.fix_it.helper.AndroidUtils;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -19,6 +23,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -28,16 +34,21 @@ import okhttp3.Response;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Toast;
 
 public class ReportApi {
 
     public ReportApi(){};
 
-    public static void sendReportToServer(String serverUrl, ProblemReport problemReport) {
+    public static void sendReportToServer(String serverUrl, ProblemReport problemReport, Context context) {
         OkHttpClient client = new OkHttpClient();
         Gson gson = new Gson();
 
         MediaType JSON = MediaType.parse("application/json; charset=utf-8");
+
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(serverUrl).newBuilder();
+        urlBuilder.addQueryParameter("userUuid", problemReport.getUser().getUuid().trim());
+        urlBuilder.addQueryParameter("sessionID", problemReport.getUser().getSessionID().trim());
 
         // Create the report data map
         Map<String, Object> reportData = new HashMap<>();
@@ -49,19 +60,19 @@ public class ReportApi {
         reportData.put("image", problemReport.getImage());
 
         // Create a nested map for the user details
-        Map<String, String> userData = new HashMap<>();
-        userData.put("userUuid", problemReport.getUser().getUuid());
-        userData.put("sessionID", problemReport.getUser().getSessionID());
+//        Map<String, String> userData = new HashMap<>();
+//        userData.put("userUuid", problemReport.getUser().getUuid());
+//        userData.put("sessionID", problemReport.getUser().getSessionID());
 
 
-        reportData.put("user", userData);
+//        reportData.put("user", userData);
 
         // Convert to JSON
         String jsonBody = gson.toJson(reportData);
 
         RequestBody body = RequestBody.create(jsonBody, JSON);
         Request request = new Request.Builder()
-                .url(serverUrl) // e.g., http://192.168.1.100:5000/receive_report
+                .url(urlBuilder.build())
                 .post(body)
                 .build();
 
@@ -72,6 +83,19 @@ public class ReportApi {
                     Log.i("ReportApi", "Report data sent successfully: " + response.code());
                 } else {
                     Log.e("ReportApi", "Failed to send report: " + response.code());
+                    if (response.code() == 401) {
+                        // Session expired, go back to login
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Toast.makeText(context, "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
+
+                            // Clear user session
+                            UserManager.getInstance().clearUser(); // You should implement this
+
+                            Intent intent = new Intent(context, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            context.startActivity(intent);
+                        });
+                    }
                 }
             } catch (IOException e) {
                 Log.e("ReportApi", "Error: " + e.getMessage());
@@ -112,12 +136,19 @@ public class ReportApi {
         }).start();
     }
 
-    public static void getReportsFromServer(String serverUrl, String userUuid, String sessionId, Consumer<List<ProblemReport>> callback) {
-        OkHttpClient client = new OkHttpClient();
+
+
+    public static void getReportsFromServer(String serverUrl, String userUuid, String sessionId, Context context, Consumer<List<ProblemReport>> callback) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .readTimeout(60, TimeUnit.SECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .build();
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(serverUrl).newBuilder();
         urlBuilder.addQueryParameter("userUuid", userUuid);
         urlBuilder.addQueryParameter("sessionID", sessionId);
+//        urlBuilder.addQueryParameter("limit", "10");
+//        urlBuilder.addQueryParameter("offset", String.valueOf(currentOffset)); // e
 
         Request request = new Request.Builder()
                 .url(urlBuilder.build())
@@ -167,6 +198,19 @@ public class ReportApi {
 
                 } else {
                     Log.e("ReportApi", "Failed to fetch reports: " + response.code());
+                    if (response.code() == 401) {
+                        // Session expired, go back to login
+                        new Handler(Looper.getMainLooper()).post(() -> {
+                            Toast.makeText(context, "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
+
+                            // Clear user session
+                            UserManager.getInstance().clearUser(); // You should implement this
+
+                            Intent intent = new Intent(context, LoginActivity.class);
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            context.startActivity(intent);
+                        });
+                    }
                 }
             } catch (Exception e) {
                 Log.e("ReportApi", "Error fetching reports: " + e.getMessage());
@@ -174,6 +218,44 @@ public class ReportApi {
             }
         }).start();
     }
+
+
+public static void deleteReportFromServer(String serverUrl, String reportUuid, String sessionId, String userUuid, Runnable onSuccess) {
+    OkHttpClient client = new OkHttpClient();
+
+    HttpUrl url = HttpUrl.parse(serverUrl).newBuilder()
+            .addQueryParameter("uuid", reportUuid.trim())
+            .addQueryParameter("sessionId", sessionId.trim())
+            .addQueryParameter("userUuid", userUuid.trim())
+            .build();
+
+    Request request = new Request.Builder()
+            .url(url)
+            .delete()
+            .build();
+
+    client.newCall(request).enqueue(new Callback() {
+        @Override
+        public void onFailure(Call call, IOException e) {
+            Log.e("ReportApi", "Failed to delete report: " + e.getMessage());
+        }
+
+        @Override
+        public void onResponse(Call call, Response response) throws IOException {
+            if (response.isSuccessful()) {
+                Log.i("ReportApi", "Report deleted successfully");
+                new Handler(Looper.getMainLooper()).post(onSuccess);
+            } else {
+                Log.e("ReportApi", "Failed to delete report: " + response.code());
+            }
+        }
+    });
+}
+
+
+
+
+
 
 
 

@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("first if", "first if");
                 navigateTo(signInActivity.class);
             } else {
-                usersApi.sendSessionIdAndUuidToServer("http://10.100.102.8:5000/initialCredentials", uuid, sessionId, new ServerResponseCallback() {
+                usersApi.sendSessionIdAndUuidToServer("http://10.100.102.12:5000/initialCredentials", uuid, sessionId, new ServerResponseCallback() {
                     @Override
                     public void onSuccess(String responseBody) {
                         Log.i("response body", responseBody);

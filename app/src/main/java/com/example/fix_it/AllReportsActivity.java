@@ -3,43 +3,43 @@ package com.example.fix_it;
 import android.os.Bundle;
 
 import androidx.activity.EdgeToEdge;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.fix_it.api.ReportApi;
+import com.example.fix_it.api_dto.ProblemReport;
 import com.example.fix_it.api_dto.User;
 import com.example.fix_it.api_dto.UserManager;
+import com.example.fix_it.helper.AdminReportAdapter;
 import com.example.fix_it.helper.BaseActivity;
-import com.example.fix_it.helper.ReportAdapter;
 
 import java.util.ArrayList;
 
-public class MyReportsActivity extends BaseActivity {
+public class AllReportsActivity extends BaseActivity {
 
     private User user;
     private RecyclerView recyclerView;
-    private ReportAdapter adapter;
-
+    private AdminReportAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_my_reports);
+        setContentView(R.layout.activity_all_reports);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
 
-        recyclerView = findViewById(R.id.reportsRecyclerView);
 
-        // Set up adapter with empty list initially
-        adapter = new ReportAdapter(new ArrayList<>());
+        recyclerView = findViewById(R.id.AllReportsRecyclerView);
+
+        // Initialize adapter with empty list and context
+        adapter = new AdminReportAdapter(new ArrayList<>(), this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -50,12 +50,14 @@ public class MyReportsActivity extends BaseActivity {
             return;
         }
 
-        String serverUrl = "http://10.100.102.12:5000/get_reports";
+        String serverUrl = "http://10.100.102.12:5000/get_all_reports"; // Replace with your admin endpoint
         String userUuid = user.getUuid();
         String sessionId = user.getSessionID();
 
-        ReportApi.getReportsFromServer(serverUrl, userUuid, sessionId, MyReportsActivity.this,reports -> {
-            adapter.updateData(reports);
+        // Example API call to get all reports for admin view - you should implement this method in ReportApi
+        // Fetch reports from server
+        ReportApi.getReportsFromServer(serverUrl, userUuid, sessionId, AllReportsActivity.this,reports -> {
+            adapter.updateData(reports); // Update the adapter with fetched reports
         });
 
 

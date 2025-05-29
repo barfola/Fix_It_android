@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("filedatabefore", fileData);
 
 
-            usersApi.sendLoginToServer("http://10.100.102.8:5000/login", inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
+            usersApi.sendLoginToServer("http://10.100.102.12:5000/login", inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
