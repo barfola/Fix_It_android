@@ -2,6 +2,8 @@ package com.example.fix_it.api;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
@@ -191,7 +193,7 @@ public class ReportApi {
                         reports.add(report);
                     }
 
-                    // Send the result back to main thread via callback
+                    // Send the result back to main thre\ad via callback
                     new Handler(Looper.getMainLooper()).post(() -> {
                         callback.accept(reports);
                     });
@@ -220,37 +222,78 @@ public class ReportApi {
     }
 
 
-public static void deleteReportFromServer(String serverUrl, String reportUuid, String sessionId, String userUuid, Runnable onSuccess) {
-    OkHttpClient client = new OkHttpClient();
+    public static void deleteReportFromServer(String serverUrl, String reportUuid, String sessionId, String userUuid, Runnable onSuccess) {
+        OkHttpClient client = new OkHttpClient();
 
-    HttpUrl url = HttpUrl.parse(serverUrl).newBuilder()
-            .addQueryParameter("uuid", reportUuid.trim())
-            .addQueryParameter("sessionId", sessionId.trim())
-            .addQueryParameter("userUuid", userUuid.trim())
-            .build();
+        HttpUrl url = HttpUrl.parse(serverUrl).newBuilder()
+                .addQueryParameter("uuid", reportUuid.trim())
+                .addQueryParameter("sessionId", sessionId.trim())
+                .addQueryParameter("userUuid", userUuid.trim())
+                .build();
 
-    Request request = new Request.Builder()
-            .url(url)
-            .delete()
-            .build();
+        Request request = new Request.Builder()
+                .url(url)
+                .delete()
+                .build();
 
-    client.newCall(request).enqueue(new Callback() {
-        @Override
-        public void onFailure(Call call, IOException e) {
-            Log.e("ReportApi", "Failed to delete report: " + e.getMessage());
-        }
-
-        @Override
-        public void onResponse(Call call, Response response) throws IOException {
-            if (response.isSuccessful()) {
-                Log.i("ReportApi", "Report deleted successfully");
-                new Handler(Looper.getMainLooper()).post(onSuccess);
-            } else {
-                Log.e("ReportApi", "Failed to delete report: " + response.code());
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.e("ReportApi", "Failed to delete report: " + e.getMessage());
             }
-        }
-    });
-}
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if (response.isSuccessful()) {
+                    Log.i("ReportApi", "Report deleted successfully");
+                    new Handler(Looper.getMainLooper()).post(onSuccess);
+                } else {
+                    Log.e("ReportApi", "Failed to delete report: " + response.code());
+                }
+            }
+        });
+    }
+
+    public static void getImageBase64ByUuid(String serverUrl, String imageUuid, Context context, Consumer<String> callback) {
+        OkHttpClient client = new OkHttpClient();
+
+        HttpUrl url = HttpUrl.parse(serverUrl).newBuilder()
+                .addQueryParameter("uuid", imageUuid.trim())
+                .build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .get()
+                .build();
+
+        new Thread(() -> {
+            try {
+                Response response = client.newCall(request).execute();
+                if (response.isSuccessful()) {
+                    String jsonString = response.body().string();
+                    response.close();
+
+                    JSONObject json = new JSONObject(jsonString);
+                    String base64Image = json.optString("image", "");
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        callback.accept(base64Image);
+                    });
+                } else {
+
+                    Log.e("ReportApi", "Failed to fetch image: " + response.code());
+                    response.close();
+                    new Handler(Looper.getMainLooper()).post(() -> callback.accept(null));
+
+                }
+            } catch (Exception e) {
+                Log.e("ReportApi", "Error fetching image: " + e.getMessage());
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+
 
 
 

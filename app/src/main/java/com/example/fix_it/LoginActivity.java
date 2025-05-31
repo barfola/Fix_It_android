@@ -15,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
@@ -79,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("filedatabefore", fileData);
 
 
-            usersApi.sendLoginToServer("http://10.100.102.12:5000/login", inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
+            usersApi.sendLoginToServer(ApiConfiguration.LOGIN_URL, inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);

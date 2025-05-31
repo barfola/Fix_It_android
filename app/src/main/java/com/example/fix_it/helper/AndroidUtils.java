@@ -35,7 +35,7 @@ public class AndroidUtils {
 
     public static String convertBitmapToBase64(Bitmap bitmap) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, outputStream);
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 95, outputStream);
         byte[] byteArray = outputStream.toByteArray();
         return Base64.encodeToString(byteArray, Base64.NO_WRAP);
     }

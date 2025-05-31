@@ -15,6 +15,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
@@ -77,7 +78,7 @@ public class signInActivity extends AppCompatActivity {
             String inputPasswordStr = inputPassword.getText().toString();
             User user = new User(inputUserNameStr, inputPasswordStr);
             AndroidUtils.logUserDetails(user);
-            usersApi.sendUserToServer("http://10.100.102.8:5000/signin", user, new ServerResponseCallback() {
+            usersApi.sendUserToServer(ApiConfiguration.SIGN_IN_URL, user, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
@@ -97,7 +98,7 @@ public class signInActivity extends AppCompatActivity {
                     assert fileData != null;
                     Log.i("file data", fileData);
                     Intent intent = new Intent(signInActivity.this, ProblemReportActivity.class);
-                    intent.putExtra("user", user);
+                    //intent.putExtra("user", user);
                     startActivity(intent);
                 }
 

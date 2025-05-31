@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ReportApi;
 import com.example.fix_it.api_dto.UserManager;
 import com.example.fix_it.helper.AndroidUtils;
@@ -67,16 +68,21 @@ public class ReportDetailActivity extends BaseActivity {
             return;
         }
 
-
+        String imageUuid = problemReport.getUuid();
         textDescription.setText(AndroidUtils.replaceUnderscoreWithSpace("Description: " + problemReport.getDescription()));
         textRole.setText(AndroidUtils.replaceUnderscoreWithSpace("Role: " + problemReport.getRole().name()));
         textLocation.setText(AndroidUtils.replaceUnderscoreWithSpace("Location: " + problemReport.getLocation().name()));
         textReportType.setText(AndroidUtils.replaceUnderscoreWithSpace("Report Type: " + problemReport.getReportType().name()));
 
 
-        if (problemReport.getImage() != null) {
-            imageView.setImageBitmap(AndroidUtils.convertBase64ToBitmap(problemReport.getImage()));
-        }
+        ReportApi.getImageBase64ByUuid(ApiConfiguration.GET_IMAGE_BY_UUID_URL, imageUuid, this, base64Image -> {
+            if (base64Image != null && !base64Image.isEmpty()) {
+                imageView.setImageBitmap(AndroidUtils.convertBase64ToBitmap(base64Image));
+            } else {
+                Log.e("ReportDetailActivity", "Image is empty or null");
+            }
+        });
+
 
 
 
