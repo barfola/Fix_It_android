@@ -114,9 +114,6 @@ public class signInActivity extends AppCompatActivity {
                     apiConfiguration.setSessionId(signInActivity.this, user.getSessionID());
                     apiConfiguration.setUserUUID(signInActivity.this, user.getUuid());
 
-                    String fileData = db_utils.readDataFromFile(signInActivity.this, "user.uuid");
-                    assert fileData != null;
-                    Log.i("file data", fileData);
 
                     Intent intent = new Intent(signInActivity.this, ProblemReportActivity.class);
                     startActivity(intent);
