@@ -73,7 +73,10 @@ public class signInActivity extends AppCompatActivity {
         });
     }
 
+
+
     private void checkCredentials() {
+        Log.i("the ip", "f"+apiConfiguration.getSessionId());
         String userName = inputUserName.getText().toString();
         String password = inputPassword.getText().toString();
 
@@ -85,6 +88,7 @@ public class signInActivity extends AppCompatActivity {
         }
         else if (apiConfiguration.getSignInUrl() == null){
             Toast.makeText(signInActivity.this, "You have to set up ip address", Toast.LENGTH_SHORT).show();
+            return;
         }
         else {
             String inputUserNameStr = inputUserName.getText().toString();
@@ -116,6 +120,7 @@ public class signInActivity extends AppCompatActivity {
 
                     Intent intent = new Intent(signInActivity.this, ProblemReportActivity.class);
                     startActivity(intent);
+
                 }
 
                 @Override

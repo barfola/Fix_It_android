@@ -99,32 +99,32 @@ public class ApiConfiguration {
         }
     }
 
-    // Endpoint methods
+    // Safely return full URLs only if baseURL is set
     public String getLoginUrl() {
-        return baseURL + "/login";
+        return (baseURL != null) ? baseURL + "/login" : null;
     }
 
     public String getSignInUrl() {
-        return baseURL + "/signin";
+        return (baseURL != null) ? baseURL + "/signin" : null;
     }
 
     public String getProblemReportUrl() {
-        return baseURL + "/problemReport";
+        return (baseURL != null) ? baseURL + "/problemReport" : null;
     }
 
     public String getReportsUrl() {
-        return baseURL + "/get_reports";
+        return (baseURL != null) ? baseURL + "/get_reports" : null;
     }
 
     public String getAllReportsUrl() {
-        return baseURL + "/get_all_reports";
+        return (baseURL != null) ? baseURL + "/get_all_reports" : null;
     }
 
     public String getInitialCredentialsUrl() {
-        return baseURL + "/initialCredentials";
+        return (baseURL != null) ? baseURL + "/initialCredentials" : null;
     }
 
     public String getImageByUuidUrl() {
-        return baseURL + "/get_image";
+        return (baseURL != null) ? baseURL + "/get_image" : null;
     }
 }

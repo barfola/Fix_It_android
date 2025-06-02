@@ -54,8 +54,6 @@ public class usersApi {
                 Gson gson = new Gson();
                 users = gson.fromJson(json, Users.class);
 
-                //System.out.println(users.getUserId()); // Output: John
-                //System.out.println(user.);  // Output: 30
 
                 System.out.println("Response: " + responseData);
             } else {

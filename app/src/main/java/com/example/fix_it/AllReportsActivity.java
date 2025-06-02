@@ -37,7 +37,7 @@ public class AllReportsActivity extends BaseActivity {
             return insets;
         });
 
-
+        apiConfiguration = ApiConfiguration.getInstance();
         recyclerView = findViewById(R.id.AllReportsRecyclerView);
 
         // Initialize adapter with empty list and context

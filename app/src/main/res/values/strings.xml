@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Fix_it</string>
+    <string name="app_name">Fix it</string>
     <string name="title_activity_sign_in">signInActivity</string>
     <string name="select_role">Select Role</string>
     <string name="select_location">Select Location</string>
