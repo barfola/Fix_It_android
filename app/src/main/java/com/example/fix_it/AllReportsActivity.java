@@ -9,6 +9,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ReportApi;
 import com.example.fix_it.api_dto.ProblemReport;
 import com.example.fix_it.api_dto.User;
@@ -23,6 +24,7 @@ public class AllReportsActivity extends BaseActivity {
     private User user;
     private RecyclerView recyclerView;
     private AdminReportAdapter adapter;
+    ApiConfiguration apiConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +58,7 @@ public class AllReportsActivity extends BaseActivity {
 
         // Example API call to get all reports for admin view - you should implement this method in ReportApi
         // Fetch reports from server
-        ReportApi.getReportsFromServer(serverUrl, userUuid, sessionId, AllReportsActivity.this,reports -> {
+        ReportApi.getReportsFromServer(apiConfiguration.getAllReportsUrl(), userUuid, sessionId, AllReportsActivity.this,reports -> {
             adapter.updateData(reports); // Update the adapter with fetched reports
         });
 

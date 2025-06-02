@@ -27,9 +27,9 @@ import com.example.fix_it.helper.BaseActivity;
 import org.json.JSONException;
 
 public class LoginActivity extends AppCompatActivity {
-
+    ApiConfiguration apiConfiguration;
     TextView btn;
-    Button btnLogIn;
+    Button btnLogIn, btnSetUpIp;
     private EditText inputUserName, inputPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,10 +37,20 @@ public class LoginActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
 
+        apiConfiguration = ApiConfiguration.getInstance();
         inputPassword = findViewById(R.id.inputPassword);
         inputUserName = findViewById(R.id.inputUserName);
         btnLogIn = findViewById(R.id.buttonLogin);
+        btnSetUpIp = findViewById(R.id.buttonSetupIP);
         btn = findViewById(R.id.textViewSignIn);
+
+        btnSetUpIp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, SetUpIpActivity.class);
+                startActivity(intent);
+            }
+        });
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
             Log.i("filedatabefore", fileData);
 
 
-            usersApi.sendLoginToServer(ApiConfiguration.LOGIN_URL, inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
+            usersApi.sendLoginToServer(apiConfiguration.getLoginUrl(), inputUserNameStr, inputPasswordStr, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
@@ -94,8 +104,9 @@ public class LoginActivity extends AppCompatActivity {
 
                     AndroidUtils.logUserDetails(user);
 
-                    db_utils.saveDataToFile(LoginActivity.this, "user.uuid", user.getUuid());
-                    db_utils.saveDataToFile(LoginActivity.this, "user.sessionId", user.getSessionID());
+
+                    apiConfiguration.setSessionId(LoginActivity.this, user.getSessionID());
+                    apiConfiguration.setUserUUID(LoginActivity.this, user.getUuid());
 
                     String fileData = db_utils.readDataFromFile(LoginActivity.this, "user.uuid");
                     assert fileData != null;

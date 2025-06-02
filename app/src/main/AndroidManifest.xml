@@ -16,6 +16,9 @@
         android:theme="@style/Theme.Fix_it"
         tools:targetApi="31">
         <activity
+            android:name=".SetUpIpActivity"
+            android:exported="false" />
+        <activity
             android:name=".ReportDetailActivity"
             android:exported="false" />
         <activity

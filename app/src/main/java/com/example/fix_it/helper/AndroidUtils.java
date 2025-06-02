@@ -6,6 +6,7 @@ import android.graphics.BitmapFactory;
 import android.util.Base64;
 import android.util.Log;
 
+import com.example.fix_it.MainActivity;
 import com.example.fix_it.api_dto.ProblemReport;
 import com.example.fix_it.api_dto.User;
 
@@ -55,6 +56,12 @@ public class AndroidUtils {
             return null;
         }
         return input.replace("_", " ");
+    }
+
+    public static void navigateTo(android.app.Activity currentActivity, Class<?> targetActivity) {
+        Intent intent = new Intent(currentActivity, targetActivity);
+        currentActivity.startActivity(intent);
+        currentActivity.finish();
     }
 
 

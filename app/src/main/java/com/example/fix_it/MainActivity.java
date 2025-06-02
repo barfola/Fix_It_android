@@ -13,6 +13,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
@@ -24,10 +25,13 @@ import org.json.JSONException;
 
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ApiConfiguration.init(this);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -36,16 +40,24 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        ApiConfiguration apiConfiguration = ApiConfiguration.getInstance();
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             Log.d("Handler", "This runs after a 3-second delay");
-            String uuid = db_utils.readDataFromFile(MainActivity.this, "user.uuid");
-            String sessionId = db_utils.readDataFromFile(MainActivity.this, "user.sessionId");
+            String serverIP = apiConfiguration.getServerIP();
+            String uuid = apiConfiguration.getUserUUID();
+            String sessionId = apiConfiguration.getSessionId();
 
-            if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(sessionId)) {
-                Log.i("first if", "first if");
+            Log.i(TAG, "serverIP: " + (serverIP != null ? serverIP : "null"));
+            Log.i(TAG, "uuid: " + (uuid != null ? uuid : "null"));
+            Log.i(TAG, "sessionId: " + (sessionId != null ? sessionId : "null"));
+
+            if (TextUtils.isEmpty(uuid) || TextUtils.isEmpty(sessionId) || TextUtils.isEmpty(serverIP)) {
+                Log.i(TAG, "Missing credentials or serverIP. Redirecting to sign-in.");
                 navigateTo(signInActivity.class);
             } else {
-                usersApi.sendSessionIdAndUuidToServer("http://10.100.102.12:5000/initialCredentials", uuid, sessionId, new ServerResponseCallback() {
+
+                usersApi.sendSessionIdAndUuidToServer(apiConfiguration.getInitialCredentialsUrl(), apiConfiguration.getUserUUID(), apiConfiguration.getSessionId(), new ServerResponseCallback() {
                     @Override
                     public void onSuccess(String responseBody) {
                         Log.i("response body", responseBody);
@@ -65,10 +77,17 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, String errorMessage) {
-                        Log.i("in else on failure","failure");
-
-                        if(statusCode == 401){
+                        Log.i(TAG, "API request failed: " + errorMessage);
+                        if (statusCode == 401) {
                             navigateTo(LoginActivity.class);
+                        } else if(statusCode != 0){
+                            // Optional: handle other status codes
+                            Log.w(TAG, "Unexpected status code: " + statusCode);
+                            navigateTo(signInActivity.class); // fallback
+                        }
+                        else {
+                            Log.w(TAG, "Error with ip: " + statusCode);
+                            navigateTo(signInActivity.class); // fallback
                         }
                     }
                 });

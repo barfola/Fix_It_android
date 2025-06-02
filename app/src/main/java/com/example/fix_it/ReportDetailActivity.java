@@ -33,6 +33,8 @@ public class ReportDetailActivity extends BaseActivity {
     private ProblemReport problemReport;
     private User user;
 
+    ApiConfiguration apiConfiguration;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,8 +47,10 @@ public class ReportDetailActivity extends BaseActivity {
             return insets;
         });
 
-         imageView = findViewById(R.id.imageView);
-         deleteButton = findViewById(R.id.deleteButton);
+        apiConfiguration = ApiConfiguration.getInstance();
+
+        imageView = findViewById(R.id.imageView);
+        deleteButton = findViewById(R.id.deleteButton);
 
 
 
@@ -75,7 +79,7 @@ public class ReportDetailActivity extends BaseActivity {
         textReportType.setText(AndroidUtils.replaceUnderscoreWithSpace("Report Type: " + problemReport.getReportType().name()));
 
 
-        ReportApi.getImageBase64ByUuid(ApiConfiguration.GET_IMAGE_BY_UUID_URL, imageUuid, this, base64Image -> {
+        ReportApi.getImageBase64ByUuid(apiConfiguration.getImageByUuidUrl(), imageUuid, this, base64Image -> {
             if (base64Image != null && !base64Image.isEmpty()) {
                 imageView.setImageBitmap(AndroidUtils.convertBase64ToBitmap(base64Image));
             } else {

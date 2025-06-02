@@ -130,6 +130,8 @@ public class usersApi {
             } catch (IOException e) {
                 Log.e("userApi", "Error: " + e.getMessage());
                 e.printStackTrace();
+                callback.onFailure(-1, "Connection failed: " + e.getMessage());
+
             }
         }).start(); // Run in background thread
     }
@@ -168,6 +170,8 @@ public class usersApi {
             } catch (IOException e) {
                 Log.e("userApi", "Error: " + e.getMessage());
                 e.printStackTrace();
+                callback.onFailure(-1, "Connection failed: " + e.getMessage());
+
             }
         }).start();
     }
@@ -204,6 +208,8 @@ public class usersApi {
             } catch (IOException e) {
                 Log.e("userApi", "Error: " + e.getMessage());
                 e.printStackTrace();
+                callback.onFailure(0, "Failed to connect to server: " + e.getMessage());
+
             }
         }).start();
     }

@@ -28,7 +28,8 @@ import org.json.JSONObject;
 
 public class signInActivity extends AppCompatActivity {
     TextView btn;
-    Button btnSignIn;
+    Button btnSignIn, btnSetUpIp;
+    ApiConfiguration apiConfiguration;
     private EditText inputUserName, inputPassword;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,12 +37,21 @@ public class signInActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_sign_in);
 
-
-
+        apiConfiguration = ApiConfiguration.getInstance();
         inputPassword = findViewById(R.id.inputPassword);
         inputUserName = findViewById(R.id.inputUserName);
         btn = findViewById(R.id.textViewLogIn);
+        btnSetUpIp = findViewById(R.id.buttonSetupIP);
         btnSignIn = findViewById(R.id.buttonSignIn);
+
+        btnSetUpIp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Replace SetUpIPActivity.class with the activity you want to open
+                Intent intent = new Intent(signInActivity.this, SetUpIpActivity.class);
+                startActivity(intent);
+            }
+        });
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -73,12 +83,15 @@ public class signInActivity extends AppCompatActivity {
         else if (password.isEmpty() ||  password.length() < 7){
             showError(inputPassword, "Password length must be 7 characters");
         }
+        else if (apiConfiguration.getSignInUrl() == null){
+            Toast.makeText(signInActivity.this, "You have to set up ip address", Toast.LENGTH_SHORT).show();
+        }
         else {
             String inputUserNameStr = inputUserName.getText().toString();
             String inputPasswordStr = inputPassword.getText().toString();
             User user = new User(inputUserNameStr, inputPasswordStr);
             AndroidUtils.logUserDetails(user);
-            usersApi.sendUserToServer(ApiConfiguration.SIGN_IN_URL, user, new ServerResponseCallback() {
+            usersApi.sendUserToServer(apiConfiguration.getSignInUrl(), user, new ServerResponseCallback() {
                 @Override
                 public void onSuccess(String responseBody) {
                     Log.i("response body", responseBody);
@@ -91,14 +104,17 @@ public class signInActivity extends AppCompatActivity {
                     }
 
                     user.setSessionID(sessionId);
+
                     AndroidUtils.logUserDetails(user);
-                    db_utils.saveDataToFile(signInActivity.this, "user.uuid", user.getUuid());
-                    db_utils.saveDataToFile(signInActivity.this, "user.sessionId", user.getSessionID());
+
+                    apiConfiguration.setSessionId(signInActivity.this, user.getSessionID());
+                    apiConfiguration.setUserUUID(signInActivity.this, user.getUuid());
+
                     String fileData = db_utils.readDataFromFile(signInActivity.this, "user.uuid");
                     assert fileData != null;
                     Log.i("file data", fileData);
+
                     Intent intent = new Intent(signInActivity.this, ProblemReportActivity.class);
-                    //intent.putExtra("user", user);
                     startActivity(intent);
                 }
 
@@ -106,11 +122,18 @@ public class signInActivity extends AppCompatActivity {
                 public void onFailure(int statusCode,String errorMessage) {
                     Log.i("fail", "Status: " + statusCode + ", Error: " + errorMessage);
                     runOnUiThread(() -> {
+                        String message;
+
                         if (statusCode == 401) {
-                            Toast.makeText(signInActivity.this, "Invalid username", Toast.LENGTH_SHORT).show();
+                            message = "Invalid username";
+                        } else if (statusCode == -1) {
+                            message = "Unable to connect to the server, ip is not correct";
                         } else {
-                            Toast.makeText(signInActivity.this, "Error: " + errorMessage, Toast.LENGTH_SHORT).show();
+                            message = "Error: " + errorMessage;
                         }
+                        Toast.makeText(signInActivity.this, message, Toast.LENGTH_SHORT).show();
+
+
                     });
                 }
             });

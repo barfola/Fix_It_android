@@ -42,7 +42,7 @@ public class ReportApi {
 
     public ReportApi(){};
 
-    public static void sendReportToServer(String serverUrl, ProblemReport problemReport, Context context) {
+    public static void sendReportToServer(String serverUrl, ProblemReport problemReport, Context context, ServerResponseCallback callback) {
         OkHttpClient client = new OkHttpClient();
         Gson gson = new Gson();
 
@@ -61,15 +61,6 @@ public class ReportApi {
         reportData.put("reportType", problemReport.getReportType().ordinal());
         reportData.put("image", problemReport.getImage());
 
-        // Create a nested map for the user details
-//        Map<String, String> userData = new HashMap<>();
-//        userData.put("userUuid", problemReport.getUser().getUuid());
-//        userData.put("sessionID", problemReport.getUser().getSessionID());
-
-
-//        reportData.put("user", userData);
-
-        // Convert to JSON
         String jsonBody = gson.toJson(reportData);
 
         RequestBody body = RequestBody.create(jsonBody, JSON);
@@ -81,17 +72,19 @@ public class ReportApi {
         new Thread(() -> {
             try {
                 Response response = client.newCall(request).execute();
+                String responseBody = response.body() != null ? response.body().string() : "";
+
                 if (response.isSuccessful()) {
                     Log.i("ReportApi", "Report data sent successfully: " + response.code());
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onSuccess(responseBody));
                 } else {
                     Log.e("ReportApi", "Failed to send report: " + response.code());
+                    new Handler(Looper.getMainLooper()).post(() -> callback.onFailure(response.code(), responseBody));
+
                     if (response.code() == 401) {
-                        // Session expired, go back to login
                         new Handler(Looper.getMainLooper()).post(() -> {
                             Toast.makeText(context, "Session expired. Please log in again.", Toast.LENGTH_LONG).show();
-
-                            // Clear user session
-                            UserManager.getInstance().clearUser(); // You should implement this
+                            UserManager.getInstance().clearUser();
 
                             Intent intent = new Intent(context, LoginActivity.class);
                             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -102,8 +95,9 @@ public class ReportApi {
             } catch (IOException e) {
                 Log.e("ReportApi", "Error: " + e.getMessage());
                 e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> callback.onFailure(500, e.getMessage()));
             }
-        }).start(); // Run in background thread
+        }).start();
     }
 
 
@@ -149,8 +143,7 @@ public class ReportApi {
         HttpUrl.Builder urlBuilder = HttpUrl.parse(serverUrl).newBuilder();
         urlBuilder.addQueryParameter("userUuid", userUuid);
         urlBuilder.addQueryParameter("sessionID", sessionId);
-//        urlBuilder.addQueryParameter("limit", "10");
-//        urlBuilder.addQueryParameter("offset", String.valueOf(currentOffset)); // e
+
 
         Request request = new Request.Builder()
                 .url(urlBuilder.build())

@@ -20,7 +20,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ReportApi;
+import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api_dto.ProblemReport;
 import com.example.fix_it.api_dto.User;
 import com.example.fix_it.api_dto.UserManager;
@@ -46,6 +48,8 @@ public class ProblemReportActivity extends BaseActivity {
     ArrayAdapter<String> adapterRole, adapterLocation, adapterReportType;
     TextInputEditText editTextProblemTitle;
 
+    ApiConfiguration apiConfiguration;
+
     private ActivityResultLauncher<Intent> cameraLauncher;
     private Bitmap captureImage = null;
     private User user;
@@ -69,6 +73,8 @@ public class ProblemReportActivity extends BaseActivity {
             finish();
             return;
         }
+
+        apiConfiguration = ApiConfiguration.getInstance();
 
         AndroidUtils.logUserDetails(user);
         btnCapture = findViewById(R.id.btnCapture);
@@ -178,9 +184,31 @@ public class ProblemReportActivity extends BaseActivity {
 
         }
 
-        ReportApi.sendReportToServer("http://10.100.102.12:5000/problemReport", problemReport, ProblemReportActivity.this);
+        ReportApi.sendReportToServer(apiConfiguration.getProblemReportUrl(), problemReport, this, new ServerResponseCallback() {
+            @Override
+            public void onSuccess(String responseBody) {
+                Toast.makeText(getApplicationContext(), "Report sent successfully!", Toast.LENGTH_SHORT).show();
+                clearFields(); // Your method to reset inputs
+            }
+
+            @Override
+            public void onFailure(int statusCode, String errorMessage) {
+                Toast.makeText(getApplicationContext(), "Failed to send report: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+
 
         Log.i("fill all", "you fill all the fields");
+    }
+
+    private void clearFields() {
+        editTextProblemTitle.setText("");
+
+        autoCompleteRole.setText("");
+        autoCompleteLocation.setText("");
+        autoCompleteReportType.setText("");
+
+        imageView.setImageDrawable(null);
     }
 
 

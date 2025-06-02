@@ -10,6 +10,7 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ReportApi;
 import com.example.fix_it.api_dto.User;
 import com.example.fix_it.api_dto.UserManager;
@@ -23,7 +24,7 @@ public class MyReportsActivity extends BaseActivity {
     private User user;
     private RecyclerView recyclerView;
     private ReportAdapter adapter;
-
+    ApiConfiguration apiConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +37,7 @@ public class MyReportsActivity extends BaseActivity {
             return insets;
         });
 
+        apiConfiguration = ApiConfiguration.getInstance();
         recyclerView = findViewById(R.id.reportsRecyclerView);
 
         // Set up adapter with empty list initially
@@ -54,7 +56,7 @@ public class MyReportsActivity extends BaseActivity {
         String userUuid = user.getUuid();
         String sessionId = user.getSessionID();
 
-        ReportApi.getReportsFromServer(serverUrl, userUuid, sessionId, MyReportsActivity.this,reports -> {
+        ReportApi.getReportsFromServer(apiConfiguration.getReportsUrl(), userUuid, sessionId, MyReportsActivity.this, reports -> {
             adapter.updateData(reports);
         });
 
