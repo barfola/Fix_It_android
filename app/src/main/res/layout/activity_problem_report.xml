@@ -22,12 +22,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-
-
-    <!-- Top Image -->
-
-    <!-- Wrapper LinearLayout for Report Photo Button and Dropdowns -->
-
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
@@ -39,12 +33,9 @@
         android:paddingEnd="10dp"
         android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/justFixItText"
         tools:srcCompat="@tools:sample/backgrounds/scenic" />
-
-    <!-- Submit Button -->
 
     <LinearLayout
         android:id="@+id/formWrapper"
@@ -53,22 +44,40 @@
         android:layout_marginTop="28dp"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView">
 
-        <!-- Report Photo Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCapture"
-            style="@style/Widget.MaterialComponents.Button"
-            android:layout_width="173dp"
+        <!-- Buttons Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:textColor="#FFFFFF"
-            android:backgroundTint="@color/black"
+            android:orientation="horizontal"
             android:layout_marginBottom="16dp"
-            android:text="Report photo"
-            android:textColorLink="#030303" />
+            android:paddingHorizontal="16dp"
+            android:gravity="center"
+            android:weightSum="2">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCapture"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/black"
+                android:text="Report photo" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/submitButton"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_weight="1"
+                android:text="Send Report"
+                android:textColor="#FFFFFF"
+                android:backgroundTint="@color/black" />
+        </LinearLayout>
 
         <!-- Description Field -->
         <com.google.android.material.textfield.TextInputLayout
@@ -80,8 +89,7 @@
             android:hint="Problem description"
             app:boxStrokeColor="@color/black"
             app:boxStrokeWidth="4dp"
-            app:boxStrokeWidthFocused="3dp"
-            >
+            app:boxStrokeWidthFocused="3dp">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/editTextProblemTitle"
@@ -108,8 +116,7 @@
                 android:hint="@string/select_role"
                 app:boxStrokeColor="@color/black"
                 app:boxStrokeWidth="4dp"
-                app:boxStrokeWidthFocused="3dp"
-                >
+                app:boxStrokeWidthFocused="3dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteRole"
@@ -128,8 +135,7 @@
                 android:hint="@string/select_location"
                 app:boxStrokeColor="@color/black"
                 app:boxStrokeWidth="4dp"
-                app:boxStrokeWidthFocused="3dp"
-                >
+                app:boxStrokeWidthFocused="3dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/autoCompleteLocation"
@@ -151,9 +157,7 @@
             android:hint="@string/select_report_type"
             app:boxStrokeColor="@color/black"
             app:boxStrokeWidth="4dp"
-            app:boxStrokeWidthFocused="3dp"
-            >
-
+            app:boxStrokeWidthFocused="3dp">
 
             <AutoCompleteTextView
                 android:id="@+id/autoCompleteReportType"
@@ -163,19 +167,5 @@
                 tools:ignore="LabelFor" />
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/submitButton"
-        style="@style/Widget.MaterialComponents.Button"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text="Send Report"
-        android:textColor="#FFFFFF"
-        android:backgroundTint="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/formWrapper" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
