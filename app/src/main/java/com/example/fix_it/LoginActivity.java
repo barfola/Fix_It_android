@@ -82,6 +82,10 @@ public class LoginActivity extends AppCompatActivity {
         else if (password.isEmpty() ||  password.length() < 7){
             showError(inputPassword, "Password length must be 7 characters");
         }
+        else if(apiConfiguration.getLoginUrl() == null){
+            Toast.makeText(LoginActivity.this, "You have to set up ip address", Toast.LENGTH_SHORT).show();
+            return;
+        }
         else {
             String inputUserNameStr = inputUserName.getText().toString();
             String inputPasswordStr = inputPassword.getText().toString();
