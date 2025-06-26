@@ -52,7 +52,6 @@ public class MyReportsActivity extends BaseActivity {
             return;
         }
 
-        String serverUrl = "http://10.100.102.12:5000/get_reports";
         String userUuid = user.getUuid();
         String sessionId = user.getSessionID();
 

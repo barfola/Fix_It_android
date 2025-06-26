@@ -19,6 +19,7 @@ import com.example.fix_it.api.ApiConfiguration;
 import com.example.fix_it.api.ServerResponseCallback;
 import com.example.fix_it.api.usersApi;
 import com.example.fix_it.api_dto.User;
+import com.example.fix_it.api_dto.UserManager;
 import com.example.fix_it.db.db_utils;
 import com.example.fix_it.helper.AndroidUtils;
 import com.example.fix_it.helper.BaseActivity;
@@ -111,6 +112,7 @@ public class signInActivity extends AppCompatActivity {
 
                     AndroidUtils.logUserDetails(user);
 
+                    UserManager.getInstance().setUser(user);
                     apiConfiguration.setSessionId(signInActivity.this, user.getSessionID());
                     apiConfiguration.setUserUUID(signInActivity.this, user.getUuid());
 

@@ -28,7 +28,6 @@ public class ApiConfiguration {
         }
         return instance;
     }
-
     private void loadConfigurationFromFiles(Context context) {
         this.serverIP = safeRead(context, "user.serverip");
         this.userUUID = safeRead(context, "user.uuid");

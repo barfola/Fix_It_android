@@ -209,6 +209,9 @@ public class ReportApi {
                 }
             } catch (Exception e) {
                 Log.e("ReportApi", "Error fetching reports: " + e.getMessage());
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    Toast.makeText(context, "Failed to connect to server. Please try again later.", Toast.LENGTH_LONG).show();
+                });
                 e.printStackTrace();
             }
         }).start();
